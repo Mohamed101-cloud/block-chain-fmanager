@@ -20,10 +20,10 @@ This project is a file management system integrated with blockchain technology t
 
 
 ## 📂 Project Structure
-
-* `file.py` → main logic
-* `Blockchain_back.py` → blockchain part
-* `File_Manager_ui.py` → interface
+*login_ui.py (هذا ملف تسجيل الدخول)
+* `File_Manager_ui.py` → (هذا واجهة رفع الملفات)
+* `file.py` → (ملف الباكند لرفع الملفات)
+* `Blockchain_back.py` → (ملف البلوكتشين لا تدخله اذا مو اختصاصك)
 * `file_database.py` → database
 
 ## 👨‍💻 Author
