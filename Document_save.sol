@@ -27,9 +27,9 @@ contract DocumentRegistry {
         owner = msg.sender;
     }
 
-    // --- الوظائف الأساسية ---
+    //الوظائف الأساسية 
 
-    // الآن يمكن لأي محفظة تسجيل وثيقة دون الحاجة لإضافة موظف
+    // 
     function recordDocument(bytes32 _hash) public {
         require(docs[_hash].timestamp == 0, "Document already exists");
 

@@ -104,7 +104,7 @@ class Login_ui:
             self.clear_screen() 
             MainDashboard(self.root, username=user)
         elif role == "employee":
-            # إذا كنت تريد للموظف أيضاً فتح الـ Dashboard، طبق نفس كود الـ admin هنا
+            
             self.clear_screen()
             MainDashboard(self.root, username=user)
         else:

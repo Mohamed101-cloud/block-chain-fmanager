@@ -8,13 +8,12 @@ class BlockchainManager:
         self.web3 = Web3(Web3.HTTPProvider(self.ganache_url))
         
         # 2. عنوان العقد (تأكد من تحديثه بعد عمل Deploy للعقد الجديد)
-        raw_address = "0xD6deBfE263819c7F423eB59c0a27a25d44814951"
+        raw_address = "0x4133117677A45c534388203C01F727D6a4401d61"
         self.contract_address = self.web3.to_checksum_address(raw_address)
         
         # 3. الـ ABI المحدث (أضفنا دالة updateDocumentStatus)
         self.abi = [
             
-	
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -171,7 +170,9 @@ class BlockchainManager:
 		"stateMutability": "view",
 		"type": "function"
 	}
+
 ]
+
 
 
         

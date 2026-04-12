@@ -1,13 +1,16 @@
 import hashlib
 import os
-from Blockchain_back import BlockchainManager
+from datetime import datetime
+from file_database import DatabaseManager
+from Blockchain_back import BlockchainManager 
 
 class FileProcessor:
     def __init__(self):
+        self.db = DatabaseManager()
         self.blockchain = BlockchainManager()
 
     def calculate_sha256(self, file_path):
-        """توليد بصمة رقمية فريدة للملف"""
+        
         sha256_hash = hashlib.sha256()
         try:
             with open(file_path, "rb") as f:
@@ -15,28 +18,31 @@ class FileProcessor:
                     sha256_hash.update(byte_block)
             return sha256_hash.hexdigest()
         except Exception as e:
-            print(f"Error calculating hash: {e}")
+            print(f"Error hashing file: {e}")
             return None
 
-    def upload_to_blockchain(self, file_path):
-        """العملية الكاملة: حساب الهاش ثم الرفع"""
-        # 1. حساب الهاش
+    def process_upload(self, file_path):
+        
+        # توليد البصمة الرقمية للملف
         f_hash = self.calculate_sha256(file_path)
         if not f_hash:
-            return False, "تعذر معالجة الملف"
+            return False, 
 
-        # 2. محاولة التسجيل في البلوكتشين
         success, result = self.blockchain.record_file_hash(f_hash)
         
         if success:
-            return True, result  # نتيجة النجاح هي رقم المعاملة
+            try:
+            
+                filename = os.path.basename(file_path)
+                current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+                self.db.add_file(filename, file_path, f_hash, current_date)
+                
+                return True, f"تم بنجاح! رقم المعاملة: {result}"
+            except Exception as e:
+                return False, f"نجح البلوكتشين ولكن فشل الحفظ المحلي: {str(e)}"
         else:
-            return False, result # نتيجة الفشل هي رسالة الخطأ
+            
+            return False, f"فشل التسجيل في البلوكتشين: {result}"
 
-    def check_authenticity(self, file_path):
-        """التحقق من صحة الملف المختار"""
-        f_hash = self.calculate_sha256(file_path)
-        data = self.blockchain.verify_file(f_hash)
-        if data and data[1] != 0: # إذا كان الـ timestamp ليس صفراً
-            return True, data
-        return False, "هذا الملف غير مسجل في النظام!"
+    def get_local_records(self):
+        return self.db.get_all_files()
