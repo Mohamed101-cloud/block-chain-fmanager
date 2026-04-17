@@ -7,29 +7,23 @@ class BlockchainManager:
         self.ganache_url = "http://127.0.0.1:7545"
         self.web3 = Web3(Web3.HTTPProvider(self.ganache_url))
         
-        # 2. عنوان العقد (تأكد من تحديثه بعد عمل Deploy للعقد الجديد)
-        raw_address = "0x4133117677A45c534388203C01F727D6a4401d61"
+        # 2. عنوان العقد (تأكد من تحديثه بعد عمل Deploy للعقد في Remix)
+        raw_address = "0x09Fb3881A869C605bB51dbc1C2bFef531C212d2E"
         self.contract_address = self.web3.to_checksum_address(raw_address)
         
-        # 3. الـ ABI المحدث (أضفنا دالة updateDocumentStatus)
         self.abi = [
             
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
 	{
 		"anonymous": False,
 		"inputs": [
 			{
-				"indexed": True,
-				"internalType": "bytes32",
-				"name": "fileHash",
-				"type": "bytes32"
+				"indexed": False,
+				"internalType": "string",
+				"name": "cid",
+				"type": "string"
 			},
 			{
-				"indexed": True,
+				"indexed": False,
 				"internalType": "address",
 				"name": "uploader",
 				"type": "address"
@@ -37,7 +31,7 @@ class BlockchainManager:
 			{
 				"indexed": False,
 				"internalType": "uint256",
-				"name": "timestamp",
+				"name": "time",
 				"type": "uint256"
 			}
 		],
@@ -45,30 +39,16 @@ class BlockchainManager:
 		"type": "event"
 	},
 	{
-		"anonymous": False,
 		"inputs": [
 			{
-				"indexed": True,
-				"internalType": "bytes32",
-				"name": "fileHash",
-				"type": "bytes32"
+				"internalType": "string",
+				"name": "_cid",
+				"type": "string"
 			},
 			{
-				"indexed": False,
-				"internalType": "enum DocumentRegistry.Status",
-				"name": "status",
-				"type": "uint8"
-			}
-		],
-		"name": "DocumentStatusChanged",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_hash",
-				"type": "bytes32"
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
 			}
 		],
 		"name": "recordDocument",
@@ -79,35 +59,41 @@ class BlockchainManager:
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "_hash",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "enum DocumentRegistry.Status",
-				"name": "_status",
-				"type": "uint8"
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
-		"name": "setDocumentStatus",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"name": "allCIDs",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "",
-				"type": "bytes32"
+				"type": "string"
 			}
 		],
 		"name": "docs",
 		"outputs": [
 			{
-				"internalType": "bytes32",
-				"name": "fileHash",
-				"type": "bytes32"
+				"internalType": "string",
+				"name": "ipfsCID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "fileName",
+				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -118,11 +104,78 @@ class BlockchainManager:
 				"internalType": "uint256",
 				"name": "timestamp",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_cid",
+				"type": "string"
+			}
+		],
+		"name": "exists",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "getCID",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_cid",
+				"type": "string"
+			}
+		],
+		"name": "getDocument",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
 			},
 			{
-				"internalType": "enum DocumentRegistry.Status",
-				"name": "status",
-				"type": "uint8"
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -130,12 +183,12 @@ class BlockchainManager:
 	},
 	{
 		"inputs": [],
-		"name": "owner",
+		"name": "getTotalDocuments",
 		"outputs": [
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -144,13 +197,23 @@ class BlockchainManager:
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "_hash",
-				"type": "bytes32"
+				"internalType": "string",
+				"name": "_cid",
+				"type": "string"
 			}
 		],
 		"name": "verifyDocument",
 		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "isAuthentic",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "fileName",
+				"type": "string"
+			},
 			{
 				"internalType": "address",
 				"name": "uploader",
@@ -160,74 +223,70 @@ class BlockchainManager:
 				"internalType": "uint256",
 				"name": "timestamp",
 				"type": "uint256"
-			},
-			{
-				"internalType": "enum DocumentRegistry.Status",
-				"name": "status",
-				"type": "uint8"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	}
-
 ]
-
-
-
-        
         
         self.contract = self.web3.eth.contract(address=self.contract_address, abi=self.abi)
         
         if self.web3.is_connected():
+            # استخدام الحساب الأول من Ganache كحساب افتراضي لإرسال المعاملات
             self.web3.eth.default_account = self.web3.eth.accounts[0]
+            print(f"Connection successful. Active Account: {self.web3.eth.default_account}")
         else:
-            print("تحذير: لم يتم الاتصال بـ Ganache!")
+            print("Warning: Connection to Ganache failed!")
 
-    def record_file_hash(self, file_hash_hex):
+    def record_file_on_blockchain(self, cid, file_name):
+        """تسجيل ملف جديد باستخدام الـ CID والاسم"""
         try:
-            if not file_hash_hex.startswith('0x'):
-                file_hash_hex = '0x' + file_hash_hex
-            hash_bytes = self.web3.to_bytes(hexstr=file_hash_hex)
-            tx_hash = self.contract.functions.recordDocument(hash_bytes).transact()
+            # إرسال المعاملة للدالة recordDocument(string, string)
+            tx_hash = self.contract.functions.recordDocument(cid, file_name).transact()
             receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
             return True, receipt.transactionHash.hex()
         except Exception as e:
             return False, str(e)
 
-    def verify_file(self, file_hash_hex):
+    def verify_file(self, cid):
+        """التحقق من صحة الملف باستخدام الـ CID"""
         try:
-            if not file_hash_hex.startswith('0x'):
-                file_hash_hex = '0x' + file_hash_hex
-            hash_bytes = self.web3.to_bytes(hexstr=file_hash_hex)
-            result = self.contract.functions.verifyDocument(hash_bytes).call()
+            # استدعاء دالة verifyDocument(string) من العقد
+            result = self.contract.functions.verifyDocument(cid).call()
             
-            # تحويل الحالة من رقم إلى نص مفهوم
-            status_map = {0: "Active", 1: "Revoked", 2: "Archived"}
-            return {
-                "uploader": result[0],
-                "timestamp": result[1],
-                "status": status_map.get(result[2], "Unknown")
-            }
+            # العقد يرجع: (bool, string, address, uint256)
+            is_authentic = result[0]
+            file_name = result[1]
+            uploader = result[2]
+            timestamp = result[3]
+            
+            if is_authentic:
+                return {
+                    "status": "success",
+                    "is_authentic": True,
+                    "file_name": file_name,
+                    "uploader": uploader,
+                    "timestamp": timestamp
+                }
+            else:
+                return {
+                    "status": "not_found",
+                    "is_authentic": False,
+                    "message": "هذا الملف غير مسجل في البلوكشين."
+                }
+                
         except Exception as e:
-            print(f"Error verifying: {e}")
-            return None
+            return {"status": "error", "message": str(e)}
 
-    def update_file_status(self, file_hash_hex, new_status):
-        """
-        تغيير حالة الملف: 0 = Active, 1 = Revoked, 2 = Archived
-        """
-        try:
-            if not file_hash_hex.startswith('0x'):
-                file_hash_hex = '0x' + file_hash_hex
-            hash_bytes = self.web3.to_bytes(hexstr=file_hash_hex)
-
-            # استدعاء الدالة من العقد
-            tx_hash = self.contract.functions.setDocumentStatus(hash_bytes, int(new_status)).transact(...)
-            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
-            return True, receipt.transactionHash.hex()
-        except Exception as e:
-            print(f"Error updating status: {e}")
-            return False, str(e)
-
-
+# --- مثال على الاستخدام المباشر ---
+if __name__ == "__main__":
+    manager = BlockchainManager()
+    
+    # تجربة التسجيل
+    # status, tx = manager.record_file_on_blockchain("Qm123test", "MyReport.pdf")
+    # print(f"Transaction: {tx}")
+    
+    # تجربة التحقق
+    # result = manager.verify_file("Qm123test")
+    # print(result)

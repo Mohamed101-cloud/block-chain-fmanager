@@ -1,48 +1,60 @@
-import hashlib
 import os
+import requests
 from datetime import datetime
-from file_database import DatabaseManager
+from file_database import DatabaseManager 
 from Blockchain_back import BlockchainManager 
 
 class FileProcessor:
     def __init__(self):
         self.db = DatabaseManager()
         self.blockchain = BlockchainManager()
-
-    def calculate_sha256(self, file_path):
         
-        sha256_hash = hashlib.sha256()
+        # معلومات Pinata الخاصة بك
+        self.pinata_api_key = "03bd6ef508c78c49739c"
+        self.pinata_secret_api_key = "3325b02d1d0f927af0fe99c53b353e00075738bba25a79cd54c3cf289d787ee0"
+        self.pinata_url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+
+    def upload_to_pinata(self, file_path):
+        """رفع الملف لـ Pinata والحصول على CID (Qm...)"""
+        headers = {
+            'pinata_api_key': self.pinata_api_key,
+            'pinata_secret_api_key': self.pinata_secret_api_key
+        }
         try:
-            with open(file_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
-            return sha256_hash.hexdigest()
-        except Exception as e:
-            print(f"Error hashing file: {e}")
+            with open(file_path, 'rb') as file:
+                filename = os.path.basename(file_path)
+                response = requests.post(
+                    self.pinata_url,
+                    files={'file': (filename, file)},
+                    headers=headers
+                )
+                if response.status_code == 200:
+                    return response.json()['IpfsHash'] # الـ CID
+                return None
+        except Exception:
             return None
 
     def process_upload(self, file_path):
-        
-        # توليد البصمة الرقمية للملف
-        f_hash = self.calculate_sha256(file_path)
-        if not f_hash:
-            return False, 
+        """الرفع والتوثيق"""
+        cid = self.upload_to_pinata(file_path)
+        if not cid:
+            return False, "فشل الرفع لـ Pinata"
 
-        success, result = self.blockchain.record_file_hash(f_hash)
+        filename = os.path.basename(file_path)
+        
+        # التسجيل في البلوكشين (تأكد من مطابقة اسم الدالة في Blockchain_back)
+        success, result = self.blockchain.record_file_on_blockchain(cid, filename)
         
         if success:
-            try:
-            
-                filename = os.path.basename(file_path)
-                current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-                self.db.add_file(filename, file_path, f_hash, current_date)
-                
-                return True, f"تم بنجاح! رقم المعاملة: {result}"
-            except Exception as e:
-                return False, f"نجح البلوكتشين ولكن فشل الحفظ المحلي: {str(e)}"
-        else:
-            
-            return False, f"فشل التسجيل في البلوكتشين: {result}"
+            current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+            self.db.add_file(filename, file_path, cid, current_date)
+            return True, f"Verification Successful! CID: {cid}"        
+        return False, f"Blockchain Error: {result}"
 
-    def get_local_records(self):
-        return self.db.get_all_files()
+    def process_verification(self, file_path):
+        """التحقق من صحة الملف"""
+        cid = self.upload_to_pinata(file_path)
+        if not cid:
+            return {"status": "error", "message": "Connection to Pinata failed"}
+        # التحقق من العقد الذكي
+        return self.blockchain.verify_file(cid)
